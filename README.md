@@ -1,6 +1,7 @@
 # WebCrawler
 A simple webcrawler
-**Usage**
+
+##Usage
 ```
 java -jar webcrawler.jar [OPTIONS] [seed]
 [OPTIONS]:
