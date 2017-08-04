@@ -19,7 +19,6 @@ public class Driver {
             usage();
             return;
         }
-
         Integer maxDepth = null;
         String seed = null;
         for (int i = 0; i < args.length; i++) {

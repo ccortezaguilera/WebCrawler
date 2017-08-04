@@ -1,6 +1,7 @@
 package webcrawler;
 
-import javax.net.ssl.*;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,11 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -123,17 +119,15 @@ public class Crawler extends Thread {
      *
      * @param method the method to use to connect to the server
      * @return The https connection
-     * @implNote The implementation makes sure to avoid any self signing certificates that may cause problems.
+     * @implNote The implementation makes sure to avoid any self signing certificates that may cause problems by
+     * defaulting the user-agent.
      */
     private HttpsURLConnection doAHTTPSRequest(String method) {
         HttpsURLConnection httpsURLConnection = null;
         try {
-            //https://stackoverflow.com/questions/1828775/how-to-handle-invalid-ssl-certificates-with-apache-httpclient
-            SSLContext ctx = SSLContext.getInstance("TLS");
-            ctx.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
-            SSLContext.setDefault(ctx);
             httpsURLConnection = (HttpsURLConnection) this.seedURL.openConnection();
             httpsURLConnection.setRequestMethod(method);
+            httpsURLConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
             int responseCode = httpsURLConnection.getResponseCode();
             if (responseCode != HttpsURLConnection.HTTP_OK
                     && responseCode != HttpsURLConnection.HTTP_ACCEPTED) {
@@ -142,10 +136,6 @@ public class Crawler extends Thread {
             }
         } catch (IOException ioe) {
             System.err.println("An I/O exception occurred trying an https connection to " + this.seedURL.toString());
-        } catch (NoSuchAlgorithmException nsae) {
-            System.err.println("No algorithm Exception" + nsae.getMessage());
-        } catch (KeyManagementException kme) {
-            System.err.println("KeyManagementException" + kme.getMessage());
         }
         return httpsURLConnection;
 
@@ -224,24 +214,5 @@ public class Crawler extends Thread {
             }
         }
         return result.toString();
-    }
-
-    /**
-     * Private class for taking care of secure connections.
-     */
-    private static class DefaultTrustManager implements X509TrustManager {
-
-        @Override
-        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-        }
-
-        @Override
-        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-        }
-
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
     }
 }
