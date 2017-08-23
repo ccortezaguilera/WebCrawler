@@ -2,14 +2,8 @@ package webcrawler;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLPeerUnverifiedException;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -138,7 +132,6 @@ public class Crawler extends Thread {
             System.err.println("An I/O exception occurred trying an https connection to " + this.seedURL.toString());
         }
         return httpsURLConnection;
-
     }
 
     /**
@@ -197,7 +190,7 @@ public class Crawler extends Thread {
             Set<String> links = new HashSet<String>();
             while (matcher.find()) {
                 String newLink = matcher.group(WebCrawler.GROUP);
-                if (links.contains(links)) {
+                if (links.contains(newLink)) {
                     continue;
                 }
                 links.add(newLink);
